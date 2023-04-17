@@ -38,13 +38,6 @@ app.get("/participants", async (req, res) => {
   });
   
 
-app.get("/lista-pessoas", (req, res) => {
-    const pessoas = [{ nome: "João", idade: 30 }, { nome: "Maria", idade: 20 }];
-    res.send(pessoas);
-})
-
-
-
 app.post("/participants", async (req, res) => {
     const { name } = req.body;
     const { error } = dataSchema.validate({ name })
@@ -63,13 +56,6 @@ app.post("/participants", async (req, res) => {
             return res.sendStatus(409)
         }
         await db.collection("participants").insertOne({ name: req.body.name, lastStatus: Date.now() });
-        await db.collection('messages').insertOne({
-            from: req.body.name,
-            to: 'Todos',
-            text: 'entra na sala...',
-            type: 'status',
-            time: now.format('HH:mm:ss'),
-        });
         return res.sendStatus(201)
     } catch (error) {
 
@@ -78,6 +64,26 @@ app.post("/participants", async (req, res) => {
     res.send(users);
 });
 
+
+app.post("/messages", async (req,res) => {
+    const { name } = req.body;
+    const { error } = dataSchema.validate({ name })
+
+    if (error) {
+        const errorMessage = error.details.map((err) => err.message);
+        return res.status(422).json({ error: errorMessage });
+    }
+    res.send(users);
+
+
+    await db.collection('messages').insertOne({
+        from: req.body.name,
+        to: 'Todos',
+        text: 'entra na sala...',
+        type: 'status',
+        time: now.format('HH:mm:ss'),
+    });
+})
 
 
 app.listen(5000, () => console.log("Running server on port 5000"));
