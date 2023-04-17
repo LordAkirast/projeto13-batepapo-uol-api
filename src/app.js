@@ -23,17 +23,20 @@ Mongoclient.connect()
     .then(() => db = Mongoclient.db())
     .catch((err) => console.log(err.message))
 
-
-const pessoas = [];
-
 const dataSchema = Joi.object({
     name: Joi.string().required()
 })
 
-app.get("/pessoa", (req, res) => {
-    const pessoa = JSON.stringify(pessoas);
-    res.send(pessoa);
-})
+app.get("/participants", async (req, res) => {
+    try {
+      const participants = await db.collection("participants").find().toArray();
+      res.json(participants);
+    } catch (error) {
+      console.log(error);
+      res.sendStatus(500);
+    }
+  });
+  
 
 app.get("/lista-pessoas", (req, res) => {
     const pessoas = [{ nome: "João", idade: 30 }, { nome: "Maria", idade: 20 }];
@@ -71,8 +74,8 @@ app.post("/participants", async (req, res) => {
     } catch (error) {
 
     }
-    pessoas.push(name);
-    res.send(pessoas);
+    users.push(name);
+    res.send(users);
 });
 
 
